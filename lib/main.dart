@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-
   final String title;
 
   @override
@@ -32,36 +31,30 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-static const channel = const MethodChannel("com.example.encdecjava");
-static const channel1 = MethodChannel("dec");
-TextEditingController sss = TextEditingController();
+  static const channel = MethodChannel("com.example.encdecjava");
+  TextEditingController sss = TextEditingController();
 
-String encText = "";
-String decText = "";
-Future<void> encryptdec(String text, String key) async{
+  String encText = "";
+  String decText = "";
+  Future<void> encryptdec(String text, String key) async {
+    var s = await channel
+        .invokeMethod("encrypt", <String, String>{'text': text, 'key': key});
+    //print("encdata" + s);
+    setState(() {
+      encText = s;
+    });
+  }
 
-  var s = await channel.invokeMethod("encrypt", <String, String>{
-    'text': text,
-    'key': key
-  });
-  print("encdata"+s);
-  setState(() {
-    encText = s;
-  });
+  Future<void> decrypt(String text, String key) async {
+    var res = await channel
+        .invokeMethod("decrypt", <String, String>{'text': text, 'key': key});
+    //print("encdata" + res);
+    //return res;
+    setState(() {
+      decText = res;
+    });
+  }
 
-
-}
-Future<void> decrypt(String text,String key) async{
-  var res = await channel.invokeMethod("decrypt",<String,String>{
-    'text': text,
-    'key': key
-  });
-  print("encdata"+res);
-  //return res;
-  setState(() {
-    decText = res;
-  });
-}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,26 +67,25 @@ Future<void> decrypt(String text,String key) async{
           children: <Widget>[
             TextField(
               controller: sss,
-              decoration: const InputDecoration(
-                hintText: "Enter Text"
-              ),
+              decoration: const InputDecoration(hintText: "Enter Text"),
             ),
-            ElevatedButton(onPressed: (){
-              encryptdec(sss.text,"123@#!Faysal");
-
-            }, child: Text("Encrypt"),),
+            ElevatedButton(
+              onPressed: () {
+                encryptdec(sss.text, "123@#!Faysal");
+              },
+              child: const Text("Encrypt"),
+            ),
             Text(encText),
-            ElevatedButton(onPressed: (){
-              decrypt(encText,"123@#!Faysal");
-
-            }, child: Text("Decrypt"),),
+            ElevatedButton(
+              onPressed: () {
+                decrypt(encText, "123@#!Faysal");
+              },
+              child: const Text("Decrypt"),
+            ),
             Text(decText),
           ],
         ),
       ),
-
     );
   }
-  
-
 }
